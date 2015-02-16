@@ -1,4 +1,3 @@
-from gevent import socket
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
@@ -6,11 +5,13 @@ from Crypto.Signature import PKCS1_v1_5
 from Crypto.Hash import HMAC, SHA256
 from Crypto import Random
 
+from lib.core.client import Client
+
 
 def process_orders(sock):
+    msg = client.recvall(128)
     key = RSA.importKey(open('private.pem').read())
     cipher = PKCS1_OAEP.new(key)
-    msg = sock.recv(1024)
     payload = cipher.decrypt(msg)
     key = payload[:16]
     iv = payload[16:32]
@@ -26,10 +27,10 @@ def process_orders(sock):
     signature = signer.sign(h)
     cipher = AES.new(key, AES.MODE_CFB, iv)
     msg = cipher.encrypt(signature+hmac+'Attack at dawn')
-    sock.sendall(msg)
-    sock.close()
+    client.sendall(msg)
+    client.close()
  
 
-socket = socket.socket()
-socket.connect(('127.0.0.1', 8000))
-process_orders(socket)
+client = Client()
+if client.connect('127.0.0.1', 8000):
+    process_orders(client)

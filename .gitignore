@@ -1,1 +1,4 @@
+private.pem
+public.pem
+test.py
 *.pyc
