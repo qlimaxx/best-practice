@@ -30,7 +30,6 @@ class Client(CryptoBox):
             nb += self.sock.send(buffer[nb:nbytes])
         return nb
             
-
     def recvall(self, nbytes):
         nb = 0
         buffer = ''
